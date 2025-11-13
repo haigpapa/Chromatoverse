@@ -344,10 +344,34 @@ Built with curiosity by developers, for developers.
 
 ---
 
-### Want to Deploy?
+## 🚀 Deployment
 
-Phase 1 is deployment-ready! Deploy to:
-- **Frontend**: Vercel, Netlify, or any static host
-- **Backend**: Railway, Render, Heroku, or VPS
+### Deploy to Vercel (Recommended - One Click!)
 
-Set environment variables accordingly and you're live!
+Codeverse Explorer is **Vercel-ready** with serverless functions!
+
+**Quick Deploy:**
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/codeverse-explorer)
+
+**Or manually:**
+
+1. Push your code to GitHub
+2. Go to [vercel.com](https://vercel.com) and import your repo
+3. Click Deploy - that's it!
+
+Your app will be live at `https://your-project.vercel.app` with:
+- ✅ Frontend automatically built and deployed
+- ✅ API functions at `/api/analyze` and `/api/health`
+- ✅ Automatic HTTPS and CDN
+- ✅ Free tier: 100GB bandwidth, 100 hours compute
+
+**Full deployment guide:** See [DEPLOYMENT.md](./DEPLOYMENT.md)
+
+### Other Options
+
+- **Railway**: Full-stack deployment with traditional Express server
+- **Render**: Generous free tier for both frontend and backend
+- **Netlify + Backend**: Split deployment (Netlify for frontend, Railway/Render for API)
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.

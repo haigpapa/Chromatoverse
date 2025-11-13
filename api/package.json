@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "dependencies": {
+    "simple-git": "^3.25.0"
+  }
+}

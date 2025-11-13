@@ -3,7 +3,9 @@ import Constellation from './components/Constellation'
 import Sidebar from './components/Sidebar'
 import LandingPage from './components/LandingPage'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// API URL: uses environment variable or defaults to empty string for Vercel (same-origin)
+// In development with local server, set VITE_API_URL=http://localhost:5000
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 function App() {
   const [mode, setMode] = useState('landing') // 'landing', 'analyzing', 'visualization'
