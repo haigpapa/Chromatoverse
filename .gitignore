@@ -1,6 +1,7 @@
 # Dependencies
 node_modules/
 client/node_modules/
+server/node_modules/
 
 # Build outputs
 client/dist/
@@ -9,6 +10,9 @@ client/dist/
 manifest.json
 codeverse-data.json
 client/public/codeverse-data.json
+
+# Server temp files
+server/temp/
 
 # Environment
 .env
