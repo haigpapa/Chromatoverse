@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { simpleGit } from 'simple-git';
 import { analyzeDirectory } from './analyzer.js';
+import { explainError } from './ai-analyzer.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -132,14 +133,59 @@ app.post('/api/analyze', async (req, res) => {
 });
 
 /**
+ * POST /api/explain-error
+ * AI Error Explainer - analyzes error stack traces
+ */
+app.post('/api/explain-error', async (req, res) => {
+  const { errorTrace, files } = req.body;
+
+  if (!errorTrace) {
+    return res.status(400).json({
+      error: 'Missing errorTrace parameter'
+    });
+  }
+
+  if (!files || !Array.isArray(files)) {
+    return res.status(400).json({
+      error: 'Missing or invalid files array'
+    });
+  }
+
+  try {
+    console.log(`[Server] Explaining error...`);
+    const explanation = await explainError(errorTrace, files);
+
+    if (explanation.error) {
+      return res.status(503).json({
+        error: 'AI analysis not available',
+        details: explanation.error
+      });
+    }
+
+    res.json(explanation);
+  } catch (error) {
+    console.error(`[Server] Error explaining error:`, error.message);
+    res.status(500).json({
+      error: 'Failed to explain error',
+      details: error.message
+    });
+  }
+});
+
+/**
  * GET /api/health
  * Health check endpoint
  */
 app.get('/api/health', (req, res) => {
+  const aiEnabled = !!process.env.OPENAI_API_KEY;
   res.json({
     status: 'ok',
     message: 'Codeverse Explorer API is running',
-    version: '1.0.0 (Phase 1)'
+    version: '1.1.0 (Phase 3)',
+    features: {
+      aiAnalysis: aiEnabled,
+      errorExplainer: aiEnabled
+    }
   });
 });
 

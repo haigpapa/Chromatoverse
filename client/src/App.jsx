@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Constellation from './components/Constellation'
 import Sidebar from './components/Sidebar'
 import LandingPage from './components/LandingPage'
+import ErrorExplainer from './components/ErrorExplainer'
 
 // API URL: uses environment variable or defaults to empty string for Vercel (same-origin)
 // In development with local server, set VITE_API_URL=http://localhost:5000
@@ -14,6 +15,8 @@ function App() {
   const [selectedNode, setSelectedNode] = useState(null)
   const [analyzeProgress, setAnalyzeProgress] = useState('')
   const [filteredNodes, setFilteredNodes] = useState(null) // For filtering
+  const [showErrorExplainer, setShowErrorExplainer] = useState(false)
+  const [highlightedFiles, setHighlightedFiles] = useState([])
 
   // Try to load local codeverse-data.json on mount (Phase 0 support)
   useEffect(() => {
@@ -130,24 +133,44 @@ function App() {
               <h1>Codeverse Explorer</h1>
               <p>{data.project.projectSummary}</p>
             </div>
-            <button
-              onClick={handleReset}
-              style={{
-                padding: '10px 20px',
-                background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '6px',
-                color: 'white',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
-                transition: 'all 0.2s'
-              }}
-              onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.2)'}
-              onMouseOut={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}
-            >
-              New Analysis
-            </button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={() => setShowErrorExplainer(true)}
+                style={{
+                  padding: '10px 20px',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  border: 'none',
+                  borderRadius: '6px',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => e.target.style.opacity = '0.9'}
+                onMouseOut={(e) => e.target.style.opacity = '1'}
+              >
+                🤖 AI Error Explainer
+              </button>
+              <button
+                onClick={handleReset}
+                style={{
+                  padding: '10px 20px',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '6px',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.2)'}
+                onMouseOut={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}
+              >
+                New Analysis
+              </button>
+            </div>
           </div>
         </header>
 
@@ -177,6 +200,23 @@ function App() {
             onNodeSelect={setSelectedNode}
           />
         </div>
+
+        {showErrorExplainer && (
+          <ErrorExplainer
+            files={data.graph.nodes}
+            onHighlightFiles={(files) => {
+              setHighlightedFiles(files)
+              // You could filter to show only these files
+              const matchingNodes = data.graph.nodes.filter(node =>
+                files.some(file => node.path.includes(file) || file.includes(node.path))
+              )
+              if (matchingNodes.length > 0) {
+                setFilteredNodes(matchingNodes)
+              }
+            }}
+            onClose={() => setShowErrorExplainer(false)}
+          />
+        )}
       </div>
     )
   }
