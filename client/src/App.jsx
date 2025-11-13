@@ -13,6 +13,7 @@ function App() {
   const [error, setError] = useState(null)
   const [selectedNode, setSelectedNode] = useState(null)
   const [analyzeProgress, setAnalyzeProgress] = useState('')
+  const [filteredNodes, setFilteredNodes] = useState(null) // For filtering
 
   // Try to load local codeverse-data.json on mount (Phase 0 support)
   useEffect(() => {
@@ -25,6 +26,7 @@ function App() {
       })
       .then(jsonData => {
         setData(jsonData)
+        setFilteredNodes(jsonData.graph.nodes) // Initialize filtered nodes
         setMode('visualization')
       })
       .catch(() => {
@@ -58,6 +60,7 @@ function App() {
       const analysisData = await response.json()
 
       setData(analysisData)
+      setFilteredNodes(analysisData.graph.nodes) // Initialize filtered nodes
       setMode('visualization')
       setAnalyzeProgress('')
     } catch (err) {
@@ -72,6 +75,11 @@ function App() {
     setData(null)
     setError(null)
     setSelectedNode(null)
+    setFilteredNodes(null)
+  }
+
+  const handleFilterChange = (newFilteredNodes) => {
+    setFilteredNodes(newFilteredNodes)
   }
 
   // Landing page with GitHub URL input
@@ -107,7 +115,13 @@ function App() {
   }
 
   // Visualization mode
-  if (mode === 'visualization' && data) {
+  if (mode === 'visualization' && data && filteredNodes) {
+    // Filter links to only show connections between filtered nodes
+    const filteredNodeIds = new Set(filteredNodes.map(n => n.id))
+    const filteredLinks = data.graph.links.filter(link =>
+      filteredNodeIds.has(link.source) && filteredNodeIds.has(link.target)
+    )
+
     return (
       <div className="app">
         <header className="header">
@@ -140,8 +154,8 @@ function App() {
         <div className="main-content">
           <div className="canvas-container">
             <Constellation
-              nodes={data.graph.nodes}
-              links={data.graph.links}
+              nodes={filteredNodes}
+              links={filteredLinks}
               onNodeClick={setSelectedNode}
             />
 
@@ -159,6 +173,8 @@ function App() {
             meta={data.meta}
             selectedNode={selectedNode}
             nodes={data.graph.nodes}
+            onFilterChange={handleFilterChange}
+            onNodeSelect={setSelectedNode}
           />
         </div>
       </div>
