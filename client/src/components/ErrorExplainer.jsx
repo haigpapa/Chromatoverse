@@ -18,6 +18,11 @@ function ErrorExplainer({ files, onHighlightFiles, onClose }) {
     setError(null)
     setExplanation(null)
 
+    // Clear previous highlights
+    if (onHighlightFiles) {
+      onHighlightFiles([])
+    }
+
     try {
       const response = await fetch(`${API_URL}/api/explain-error`, {
         method: 'POST',

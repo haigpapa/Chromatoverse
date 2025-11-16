@@ -17,12 +17,13 @@ const ROLE_COLORS = {
   'Other': '#a29bfe'
 }
 
-function Node({ node, position, onClick }) {
+function Node({ node, position, onClick, isHighlighted }) {
   const meshRef = useRef()
   const color = ROLE_COLORS[node.role] || ROLE_COLORS['Other']
 
   // Size based on dependencies (but with min/max bounds)
-  const size = Math.max(0.3, Math.min(1.5, node.size * 0.15))
+  const baseSize = Math.max(0.3, Math.min(1.5, node.size * 0.15))
+  const size = isHighlighted ? baseSize * 1.5 : baseSize
 
   return (
     <mesh
@@ -42,9 +43,9 @@ function Node({ node, position, onClick }) {
     >
       <sphereGeometry args={[size, 32, 32]} />
       <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={0.3}
+        color={isHighlighted ? '#FFD700' : color}
+        emissive={isHighlighted ? '#FFD700' : color}
+        emissiveIntensity={isHighlighted ? 0.8 : 0.3}
         roughness={0.5}
         metalness={0.5}
       />
@@ -69,7 +70,7 @@ function ConnectionLine({ start, end }) {
   )
 }
 
-function Constellation({ nodes, links, onNodeClick }) {
+function Constellation({ nodes, links, onNodeClick, highlightedFiles = [] }) {
   // Create a simple force-directed layout
   const nodePositions = useMemo(() => {
     const positions = new Map()
@@ -120,12 +121,16 @@ function Constellation({ nodes, links, onNodeClick }) {
       {nodes.map((node) => {
         const position = nodePositions.get(node.id)
         if (position) {
+          const isHighlighted = highlightedFiles.some(file =>
+            node.path.includes(file) || file.includes(node.path)
+          )
           return (
             <Node
               key={node.id}
               node={node}
               position={position}
               onClick={onNodeClick}
+              isHighlighted={isHighlighted}
             />
           )
         }

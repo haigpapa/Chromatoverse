@@ -180,6 +180,7 @@ function App() {
               nodes={filteredNodes}
               links={filteredLinks}
               onNodeClick={setSelectedNode}
+              highlightedFiles={highlightedFiles}
             />
 
             <div className="controls">
