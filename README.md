@@ -25,9 +25,10 @@ search boxes with color algebra, and navigation clicks with physical gestures.
 | `codeverse-app` | The spatial explorer application | ⬡ Planned |
 | `csm-docs` | Storybook design system | ⬡ Planned |
 
-→ [Live Demo](https://haigbalian.github.io/codeverse)  
+→ [Live Demo](https://haigpapa
+.github.io/codeverse)  
 → [Read the Manifesto](./manifesto/chroma-spatial-morphism.md)
 
 ---
 
-*Built by [Haig Balian](https://github.com/haigbalian) · Walaw Studio*
+*Built by [Haig Papazian](https://github.com/haigpapa) · Walaw Studio*
