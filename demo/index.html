@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSM · Physical Playground v2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Syne:wght@700;800&display=swap');
+
+:root {
+  --floor: #d8d4ce;
+  --wall:  #e8e5e0;
+  --ceiling: #c8c5c0;
+  --text-dark: rgba(20,20,20,0.85);
+  --text-mid:  rgba(20,20,20,0.45);
+  --mono: 'JetBrains Mono', monospace;
+  --syne: 'Syne', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; user-select: none; }
+
+/* ── GALLERY ENVIRONMENT ── */
+#gallery {
+  position: fixed; inset: 0;
+  background:
+    linear-gradient(to bottom,
+      #b0adaa 0%,        /* ceiling */
+      #c8c5c0 8%,
+      #dddad5 20%,       /* upper wall */
+      #e8e5e0 45%,
+      #e0ddd8 72%,       /* floor horizon */
+      #ccc9c4 85%,
+      #b8b5b0 100%       /* floor shadow */
+    );
+  overflow: hidden;
+}
+
+/* Perspective floor lines */
+#gallery::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: -20%; right: -20%;
+  height: 40%;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 39px,
+    rgba(160,155,148,0.18) 40px
+  );
+  transform: perspective(400px) rotateX(55deg);
+  transform-origin: bottom center;
+}
+
+/* Ceiling track */
+#ceiling-track {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 32px;
+  background: linear-gradient(to bottom, #999692, #b5b2ae);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  z-index: 2;
+}
+#ceiling-track::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0; height: 2px;
+  background: rgba(0,0,0,0.15);
+}
+
+/* Track rail line */
+.track-rail {
+  position: absolute;
+  top: 22px; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg,
+    transparent 5%,
+    rgba(80,78,75,0.6) 10%,
+    rgba(80,78,75,0.8) 50%,
+    rgba(80,78,75,0.6) 90%,
+    transparent 95%
+  );
+}
+
+/* Floor reflection */
+#floor-reflection {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 35%;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Ambient light pools on floor */
+.light-pool {
+  position: absolute;
+  bottom: 0;
+  border-radius: 50%;
+  filter: blur(40px);
+  mix-blend-mode: multiply;
+  opacity: 0.35;
+  transition: transform 0.8s ease, opacity 0.5s ease;
+}
+
+/* ── WIRE + CLIP ── */
+.wire-assembly {
+  position: absolute;
+  top: 0;
+  z-index: 5;
+  pointer-events: none;
+  transform-origin: top center;
+}
+.wire-line {
+  position: absolute;
+  top: 32px;
+  left: 50%;
+  width: 1.5px;
+  transform: translateX(-50%);
+  background: linear-gradient(to bottom,
+    rgba(100,98,94,0.9),
+    rgba(120,118,112,0.7) 60%,
+    rgba(140,136,130,0.4)
+  );
+  transform-origin: top center;
+}
+.wire-clip {
+  position: absolute;
+  top: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px; height: 14px;
+  background: linear-gradient(to bottom, #888580, #6a6762);
+  border-radius: 1px 1px 3px 3px;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.wire-clip::after {
+  content: '';
+  position: absolute;
+  top: -3px; left: 3px; right: 3px; height: 5px;
+  background: #555350;
+  border-radius: 2px 2px 0 0;
+}
+
+/* ── ACETATE SHEET ── */
+.sheet-container {
+  position: absolute;
+  cursor: grab;
+  z-index: 10;
+  transform-origin: top center;
+  transition: filter 0.5s ease;
+}
+.sheet-container:active { cursor: grabbing; }
+
+.sheet-body {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  border-radius: 1px;
+  overflow: hidden;
+  transform-origin: top center;
+}
+
+/* The acetate material itself */
+.sheet-material {
+  position: absolute; inset: 0;
+  border-radius: 1px;
+}
+
+/* Top edge — catch light */
+.sheet-material::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 3%; right: 3%; height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.5) 20%,
+    rgba(255,255,255,0.8) 50%,
+    rgba(255,255,255,0.5) 80%,
+    transparent 100%
+  );
+  border-radius: 1px;
+}
+
+/* Right edge glint */
+.sheet-material::after {
+  content: '';
+  position: absolute;
+  top: 5%; right: 0; bottom: 5%; width: 2px;
+  background: linear-gradient(to bottom,
+    transparent 0%,
+    rgba(255,255,255,0.3) 25%,
+    rgba(255,255,255,0.55) 50%,
+    rgba(255,255,255,0.3) 75%,
+    transparent 100%
+  );
+}
+
+/* Internal light scatter (the "liquid glass" feel) */
+.sheet-scatter {
+  position: absolute; inset: 0;
+  border-radius: 1px;
+  pointer-events: none;
+  opacity: 0.18;
+  background:
+    radial-gradient(ellipse 60% 30% at 30% 20%, rgba(255,255,255,0.9), transparent),
+    radial-gradient(ellipse 40% 60% at 75% 65%, rgba(255,255,255,0.4), transparent);
+}
+
+/* Content on sheet */
+.sheet-content {
+  position: absolute;
+  top: 28px; left: 20px; right: 20px;
+  color: rgba(255,255,255,0.92);
+  mix-blend-mode: screen;
+}
+.sh-label {
+  font-family: var(--syne);
+  font-weight: 800;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+.sh-title {
+  font-family: var(--syne);
+  font-weight: 800;
+  font-size: clamp(14px, 2vw, 20px);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin-bottom: 10px;
+}
+.sh-path {
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1.7;
+  opacity: 0.6;
+}
+.sh-code {
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 9px;
+  line-height: 1.65;
+  opacity: 0.5;
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 2px;
+  border-left: 2px solid rgba(255,255,255,0.25);
+  white-space: pre;
+}
+
+/* ── SOLID VOLUME (cube/box form) ── */
+.volume-container {
+  position: absolute;
+  cursor: grab;
+  z-index: 15;
+  transform-style: preserve-3d;
+}
+.volume-container:active { cursor: grabbing; }
+
+.vol-face {
+  position: absolute;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.vol-front {
+  width: 100%; height: 100%;
+  top: 0; left: 0;
+  border-radius: 3px;
+}
+.vol-right {
+  top: 4px; right: -18px;
+  width: 20px;
+  transform: skewY(-35deg);
+  transform-origin: left top;
+  background: rgba(0,0,0,0.25);
+}
+.vol-top {
+  left: 4px; top: -14px; right: -14px;
+  height: 16px;
+  transform: skewX(-55deg);
+  transform-origin: left bottom;
+  background: rgba(255,255,255,0.2);
+}
+
+/* ── COLORED FLOOR SHADOW / LIGHT CAST ── */
+.floor-cast {
+  position: absolute;
+  bottom: 0;
+  border-radius: 50%;
+  filter: blur(35px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.3s ease;
+  z-index: 3;
+}
+
+/* ── BLEND INTERSECTION ── */
+#blend-overlay {
+  position: fixed;
+  pointer-events: none;
+  z-index: 20;
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+}
+.blend-mix-label {
+  font-family: var(--syne);
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+  text-align: center;
+}
+.blend-equation {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+/* ── HUD ── */
+#hud {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+  padding: 14px 24px 18px;
+  background: linear-gradient(to top, rgba(180,175,168,0.7) 0%, transparent 100%);
+  display: flex; align-items: flex-end; justify-content: space-between;
+  pointer-events: none;
+}
+#hud-brand {
+  font-family: var(--syne);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--text-dark);
+  pointer-events: all;
+}
+#hud-brand span { color: #1a6aff; }
+#hud-meta {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--text-mid);
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+#hud-keys {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+}
+.key-hint {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--text-mid);
+  text-transform: uppercase;
+  display: flex; align-items: center; gap: 6px;
+}
+.kb {
+  padding: 1px 6px;
+  border: 1px solid rgba(20,20,20,0.2);
+  border-radius: 2px;
+  background: rgba(255,255,255,0.5);
+  color: var(--text-dark);
+  font-size: 8px;
+}
+
+/* ── TUNER ── */
+#tuner {
+  position: fixed; top: 42px; right: 16px; z-index: 50;
+  background: rgba(232,229,224,0.88);
+  border: 1px solid rgba(20,20,20,0.1);
+  border-radius: 3px;
+  padding: 12px 14px;
+  width: 164px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+#tuner-head {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(20,20,20,0.1);
+}
+.tr { display: flex; flex-direction: column; gap: 2px; margin-bottom: 8px; }
+.tl {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 8px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-mid);
+}
+.tv { color: #1a6aff; font-weight: 700; }
+input[type=range] {
+  -webkit-appearance: none; width: 100%; height: 2px;
+  background: rgba(20,20,20,0.15); border-radius: 1px; cursor: pointer; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%;
+  background: #1a6aff; box-shadow: 0 0 5px rgba(26,106,255,0.5); cursor: grab;
+}
+
+/* ── MODE TOGGLE ── */
+#mode-bar {
+  position: fixed; top: 42px; left: 16px; z-index: 50;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.mode-btn {
+  padding: 6px 12px;
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  background: rgba(232,229,224,0.88);
+  border: 1px solid rgba(20,20,20,0.12);
+  border-radius: 2px; cursor: pointer;
+  color: var(--text-mid);
+  backdrop-filter: blur(6px);
+  transition: all 0.25s ease;
+}
+.mode-btn.active {
+  background: #1a6aff; color: white;
+  border-color: #1a6aff;
+  box-shadow: 0 2px 12px rgba(26,106,255,0.35);
+}
+.mode-btn:hover:not(.active) { background: rgba(232,229,224,0.98); color: var(--text-dark); }
+
+/* ── BLEND STATUS ── */
+#status {
+  position: fixed; top: 42px; left: 50%; transform: translateX(-50%);
+  z-index: 50;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--text-mid);
+  padding: 5px 14px;
+  background: rgba(232,229,224,0.88);
+  border: 1px solid rgba(20,20,20,0.1); border-radius: 20px;
+  backdrop-filter: blur(6px);
+  white-space: nowrap;
+  transition: all 0.4s ease;
+}
+
+/* snap flash */
+#flash {
+  position: fixed; inset: 0; z-index: 100; pointer-events: none;
+  background: rgba(255,255,255,0.18);
+  opacity: 0;
+}
+@keyframes flash-pop {
+  0% { opacity: 0; } 10% { opacity: 1; } 100% { opacity: 0; }
+}
+</style>
+</head>
+<body>
+
+<div id="gallery">
+  <div id="ceiling-track">
+    <div class="track-rail"></div>
+  </div>
+  <div id="floor-reflection"></div>
+</div>
+
+<div id="blend-overlay">
+  <div class="blend-mix-label" id="bml"></div>
+  <div class="blend-equation" id="beq"></div>
+</div>
+
+<div id="flash"></div>
+
+<!-- MODE BUTTONS -->
+<div id="mode-bar">
+  <button class="mode-btn active" id="btn-sheets" onclick="setMode('sheets')">Sheets</button>
+  <button class="mode-btn" id="btn-volumes" onclick="setMode('volumes')">+ Volumes</button>
+  <button class="mode-btn" id="btn-light" onclick="setMode('light')">Light Cast</button>
+</div>
+
+<!-- STATUS -->
+<div id="status">Drag sheets to intersect — feel the depth</div>
+
+<!-- TUNER -->
+<div id="tuner">
+  <div id="tuner-head">Physics Tuner</div>
+  <div class="tr"><div class="tl">Swing <span class="tv" id="vSwing">7°</span></div><input type="range" id="slSwing" min="0" max="18" step="0.5" value="7"></div>
+  <div class="tr"><div class="tl">Tension <span class="tv" id="vTension">1.6</span></div><input type="range" id="slTension" min="1.0" max="2.8" step="0.05" value="1.6"></div>
+  <div class="tr"><div class="tl">Depth Blur <span class="tv" id="vBlur">16px</span></div><input type="range" id="slBlur" min="0" max="30" step="1" value="16"></div>
+  <div class="tr"><div class="tl">Saturation <span class="tv" id="vSat">0.72</span></div><input type="range" id="slSat" min="0.2" max="0.95" step="0.01" value="0.72"></div>
+  <div class="tr"><div class="tl">Scale <span class="tv" id="vScale">1.0</span></div><input type="range" id="slScale" min="0.5" max="1.4" step="0.05" value="1.0"></div>
+</div>
+
+<!-- HUD -->
+<div id="hud">
+  <div>
+    <div id="hud-brand">Codeverse <span>//</span> CSM</div>
+    <div id="hud-meta">Physical Playground v2 · Light & Depth</div>
+  </div>
+  <div id="hud-keys">
+    <div class="key-hint"><span class="kb">Drag</span> move sheets</div>
+    <div class="key-hint"><span class="kb">R</span> reset</div>
+    <div class="key-hint"><span class="kb">Space</span> cascade stack</div>
+    <div class="key-hint"><span class="kb">L</span> toggle light mode</div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════
+//  SHEET DEFINITIONS
+// ═══════════════════════════════
+
+const W = window.innerWidth, H = window.innerHeight;
+
+// Primary color palette from reference images
+const DEFS = [
+  {
+    id: 'sh-red',
+    color: 'rgba(210, 40, 35, SAT)',
+    solid: '#d22823',
+    label: 'Branch · main',
+    title: 'src/components/',
+    paths: ['Login.tsx', 'AuthGate.tsx', 'UserProfile.tsx', 'NavBar.tsx'],
+    code: `// Auth components\nfunction Login() {\n  return <AuthGate\n    redirect="/dashboard"\n  />;\n}`,
+    startFrac: { x: 0.18, y: 0.06 },
+    wFrac: 0.18, hFrac: 0.82,
+    zLayer: 2,
+  },
+  {
+    id: 'sh-yellow',
+    color: 'rgba(220, 200, 0, SAT)',
+    solid: '#dcc800',
+    label: 'Branch · feature/auth',
+    title: 'src/api/',
+    paths: ['auth.routes.ts', 'user.routes.ts', 'middleware.ts'],
+    code: `// JWT endpoint\nrouter.post('/login',\n  rateLimiter,\n  issueToken\n);`,
+    startFrac: { x: 0.30, y: 0.04 },
+    wFrac: 0.16, hFrac: 0.78,
+    zLayer: 1,
+  },
+  {
+    id: 'sh-blue',
+    color: 'rgba(20, 90, 210, SAT)',
+    solid: '#145ad2',
+    label: 'Layer · foreground',
+    title: 'src/utils/',
+    paths: ['crypto.ts', 'validators.ts', 'formatters.ts', 'storage.ts'],
+    code: `// Crypto util\nexport const hash =\n  async (s: string) =>\n    bcrypt.hash(s, 12);`,
+    startFrac: { x: 0.52, y: 0.05 },
+    wFrac: 0.20, hFrac: 0.80,
+    zLayer: 0,
+  },
+  {
+    id: 'sh-green',
+    color: 'rgba(20, 160, 60, SAT)',
+    solid: '#14a03c',
+    label: 'Layer · context',
+    title: 'src/store/',
+    paths: ['auth.slice.ts', 'user.slice.ts', 'rootReducer.ts'],
+    code: `// Redux slice\nconst authSlice =\n  createSlice({\n    name: 'auth', ...\n  });`,
+    startFrac: { x: 0.68, y: 0.07 },
+    wFrac: 0.17, hFrac: 0.76,
+    zLayer: 3,
+  }
+];
+
+// Subtractive blend results
+const BLENDS = {
+  'red+yellow':  { color: 'rgba(200, 100, 0, 0.6)',  text: '#ff8c00', label: 'COMPONENT ROUTES', eq: 'Red × Yellow → Orange' },
+  'yellow+blue': { color: 'rgba(0, 140, 100, 0.55)', text: '#00c878', label: 'API UTILITIES',    eq: 'Yellow × Blue → Green' },
+  'red+blue':    { color: 'rgba(120, 0, 140, 0.55)', text: '#e080ff', label: 'AUTH STATE',       eq: 'Red × Blue → Violet' },
+  'blue+green':  { color: 'rgba(0, 120, 140, 0.55)', text: '#00d4e0', label: 'STORE UTILS',      eq: 'Blue × Green → Teal' },
+  'red+green':   { color: 'rgba(80, 120, 0, 0.52)',  text: '#b8e000', label: 'COMPONENT STORE',  eq: 'Red × Green → Olive' },
+  'yellow+green':{ color: 'rgba(60, 180, 0, 0.5)',   text: '#80ff20', label: 'API STORE',        eq: 'Yellow × Green → Lime' },
+};
+
+// ═══════════════════════════════
+//  STATE
+// ═══════════════════════════════
+
+let P = { swing: 7, tension: 1.6, blurMax: 16, sat: 0.72, scale: 1.0 };
+let mode = 'sheets'; // sheets | volumes | light
+let sheets = [];
+let volumes = [];
+let dragging = null;
+let dragOffX = 0, dragOffY = 0;
+let mouseX = W/2, mouseY = H/2;
+let parallaxX = 0, parallaxY = 0;
+let lightMode = false;
+
+// ═══════════════════════════════
+//  BUILD SHEETS
+// ═══════════════════════════════
+
+function buildSheet(def, scale=1) {
+  const gallery = document.getElementById('gallery');
+  const sw = def.wFrac * W * scale;
+  const sh = def.hFrac * H * scale;
+  const sx = def.startFrac.x * W - sw/2;
+  const sy = def.startFrac.y * H;
+
+  // Wire assembly
+  const wire = document.createElement('div');
+  wire.className = 'wire-assembly';
+  wire.id = `wire-${def.id}`;
+  wire.innerHTML = `<div class="wire-clip"></div><div class="wire-line" id="wl-${def.id}"></div>`;
+  gallery.appendChild(wire);
+
+  // Sheet container
+  const el = document.createElement('div');
+  el.className = 'sheet-container';
+  el.id = def.id;
+  el.style.cssText = `width:${sw}px; height:${sh}px; left:${sx}px; top:${sy}px; z-index:${20 - def.zLayer * 3};`;
+
+  const colorStr = def.color.replace('SAT', P.sat);
+
+  el.innerHTML = `
+    <div class="sheet-body">
+      <div class="sheet-material" style="background:${colorStr}; box-shadow: inset 0 0 60px rgba(255,255,255,0.08), 0 0 40px ${def.solid}22;"></div>
+      <div class="sheet-scatter"></div>
+      <div class="sheet-content">
+        <div class="sh-label">${def.label}</div>
+        <div class="sh-title">${def.title}</div>
+        <div class="sh-path">${def.paths.map(p=>`▸ ${p}`).join('<br>')}</div>
+        <div class="sh-code">${def.code}</div>
+      </div>
+    </div>
+  `;
+
+  // Floor light cast
+  const cast = document.createElement('div');
+  cast.className = 'floor-cast';
+  cast.id = `cast-${def.id}`;
+  cast.style.cssText = `background:${def.solid}; width:${sw*1.4}px; height:80px; left:${sx - sw*0.2}px;`;
+  document.getElementById('floor-reflection').appendChild(cast);
+
+  gallery.appendChild(el);
+
+  const s = {
+    el, def, wire,
+    x: sx, y: sy, w: sw, h: sh,
+    rot: def.zLayer * 1.5,
+    isSwinging: true,
+    swingStart: performance.now() + def.zLayer * 120,
+    zLayer: def.zLayer
+  };
+  sheets.push(s);
+
+  el.addEventListener('mousedown', e => startDrag(e, sheets.indexOf(s)));
+  el.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    startDrag({ clientX: t.clientX, clientY: t.clientY, preventDefault: ()=>e.preventDefault() }, sheets.indexOf(s));
+  }, { passive: false });
+
+  updateWire(s);
+  return s;
+}
+
+// ═══════════════════════════════
+//  BUILD VOLUME (solid box)
+// ═══════════════════════════════
+
+function buildVolume(def) {
+  const gallery = document.getElementById('gallery');
+  const sw = def.wFrac * W * 0.55;
+  const sh = def.hFrac * H * 0.38;
+  const sx = def.startFrac.x * W + 40;
+  const sy = def.startFrac.y * H + sh * 0.8;
+
+  const el = document.createElement('div');
+  el.className = 'volume-container';
+  el.style.cssText = `width:${sw}px; height:${sh}px; left:${sx}px; top:${sy}px; z-index:25;`;
+
+  const colorStr = def.color.replace('SAT', P.sat * 0.85);
+  const darkColor = def.color.replace('SAT', '0.9');
+
+  el.innerHTML = `
+    <div class="vol-face vol-front" style="background:${colorStr}; box-shadow: inset 0 0 30px rgba(255,255,255,0.12), 2px 2px 20px rgba(0,0,0,0.3);">
+      <div class="sheet-scatter" style="opacity:0.3"></div>
+      <div class="sheet-content" style="top:16px; left:14px; right:14px;">
+        <div class="sh-label" style="font-size:7px">${def.label} · volume</div>
+        <div class="sh-title" style="font-size:13px">${def.title}</div>
+      </div>
+    </div>
+    <div class="vol-face vol-right" style="height:${sh}px; background:${darkColor};"></div>
+    <div class="vol-face vol-top" style="width:${sw}px;"></div>
+  `;
+
+  gallery.appendChild(el);
+
+  const v = { el, def, x: sx, y: sy, w: sw, h: sh, rot: 0, isSwinging: false, zLayer: 0 };
+  volumes.push(v);
+
+  el.addEventListener('mousedown', e => startDragVolume(e, volumes.indexOf(v)));
+  return v;
+}
+
+// ═══════════════════════════════
+//  WIRE UPDATE
+// ═══════════════════════════════
+
+function updateWire(s) {
+  const wire = s.wire;
+  const wl = document.getElementById(`wl-${s.def.id}`);
+  if (!wire || !wl) return;
+  const cx = s.x + s.w / 2;
+  wire.style.left = cx + 'px';
+  const wireLen = Math.max(s.y - 32, 10);
+  wl.style.height = wireLen + 'px';
+  // Slight swing of wire matching sheet
+  wire.style.transform = `rotate(${s.rot * 0.3}deg)`;
+  wire.style.opacity = 0.8 - s.def.zLayer * 0.15;
+}
+
+// ═══════════════════════════════
+//  TRANSFORMS
+// ═══════════════════════════════
+
+function applyTransform(s) {
+  const blur = s.zLayer * (P.blurMax / 3);
+  const scaleDepth = 1 - s.zLayer * 0.03;
+  s.el.style.transform = `translate(${s.x}px, ${s.y}px) rotate(${s.rot}deg) scale(${scaleDepth})`;
+  s.el.style.filter = blur > 0 ? `blur(${blur}px) brightness(${1 - s.zLayer * 0.06})` : `brightness(${1 - s.zLayer * 0.06})`;
+  s.el.style.zIndex = 20 - s.zLayer * 3;
+  updateWire(s);
+  if (mode === 'light') updateFloorCast(s);
+}
+
+function updateFloorCast(s) {
+  const cast = document.getElementById(`cast-${s.def.id}`);
+  if (!cast) return;
+  const cx = s.x + s.w/2;
+  cast.style.left = (cx - s.w * 0.7) + 'px';
+  cast.style.opacity = lightMode ? (0.4 - s.zLayer * 0.08) : 0;
+  cast.style.transform = `scaleX(${1 + s.zLayer * 0.1})`;
+}
+
+// ═══════════════════════════════
+//  DRAG
+// ═══════════════════════════════
+
+function startDrag(e, idx) {
+  e.preventDefault && e.preventDefault();
+  dragging = { type: 'sheet', idx };
+  const s = sheets[idx];
+  dragOffX = e.clientX - s.x;
+  dragOffY = e.clientY - s.y;
+  s.el.style.zIndex = 60;
+  s.isSwinging = false;
+  snapFlash();
+}
+
+function startDragVolume(e, idx) {
+  e.preventDefault && e.preventDefault();
+  dragging = { type: 'volume', idx };
+  const v = volumes[idx];
+  dragOffX = e.clientX - v.x;
+  dragOffY = e.clientY - v.y;
+  v.el.style.zIndex = 65;
+}
+
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX; mouseY = e.clientY;
+  parallaxX = (e.clientX / W - 0.5) * 22;
+  parallaxY = (e.clientY / H - 0.5) * 14;
+
+  if (!dragging) return;
+
+  if (dragging.type === 'sheet') {
+    const s = sheets[dragging.idx];
+    s.x = e.clientX - dragOffX;
+    s.y = Math.max(36, e.clientY - dragOffY);
+    applyTransform(s);
+    checkBlends();
+  } else {
+    const v = volumes[dragging.idx];
+    v.x = e.clientX - dragOffX;
+    v.y = e.clientY - dragOffY;
+    v.el.style.transform = `translate(${v.x}px, ${v.y}px)`;
+  }
+});
+
+document.addEventListener('mouseup', () => {
+  if (!dragging) return;
+  if (dragging.type === 'sheet') {
+    const s = sheets[dragging.idx];
+    s.el.style.zIndex = 20 - s.zLayer * 3;
+    s.isSwinging = true;
+    s.swingStart = performance.now();
+  } else {
+    const v = volumes[dragging.idx];
+    v.el.style.zIndex = 25;
+  }
+  dragging = null;
+});
+
+document.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  const t = e.touches[0];
+  if (dragging.type === 'sheet') {
+    const s = sheets[dragging.idx];
+    s.x = t.clientX - dragOffX;
+    s.y = Math.max(36, t.clientY - dragOffY);
+    applyTransform(s); checkBlends();
+  }
+}, { passive: false });
+
+document.addEventListener('touchend', () => {
+  if (dragging?.type === 'sheet') {
+    const s = sheets[dragging.idx];
+    s.el.style.zIndex = 20 - s.zLayer * 3;
+    s.isSwinging = true; s.swingStart = performance.now();
+  }
+  dragging = null;
+});
+
+// ═══════════════════════════════
+//  BLEND DETECTION
+// ═══════════════════════════════
+
+function checkBlends() {
+  const bo = document.getElementById('blend-overlay');
+  const rects = sheets.map(s => ({
+    l: s.x, t: s.y, r: s.x + s.w, b: s.y + s.h,
+    id: s.def.id.replace('sh-','')
+  }));
+
+  let bestBlend = null, bestArea = 0;
+  let blendRect = null;
+
+  for (let i = 0; i < rects.length; i++) {
+    for (let j = i+1; j < rects.length; j++) {
+      const a = rects[i], b = rects[j];
+      const il = Math.max(a.l, b.l), it = Math.max(a.t, b.t);
+      const ir = Math.min(a.r, b.r), ib = Math.min(a.b, b.b);
+      const iw = ir - il, ih = ib - it;
+      if (iw > 30 && ih > 50) {
+        const area = iw * ih;
+        const key = [a.id, b.id].sort().join('+');
+        if (BLENDS[key] && area > bestArea) {
+          bestArea = area; bestBlend = BLENDS[key];
+          blendRect = { l: il, t: it, w: iw, h: ih };
+        }
+      }
+    }
+  }
+
+  if (bestBlend && blendRect) {
+    bo.style.cssText = `
+      left:${blendRect.l}px; top:${blendRect.t}px;
+      width:${blendRect.w}px; height:${blendRect.h}px;
+      background:${bestBlend.color}; opacity:1;
+      position:fixed; pointer-events:none; z-index:20; border-radius:2px;
+      border:1px solid rgba(255,255,255,0.12);
+      display:flex; align-items:center; justify-content:center; flex-direction:column; gap:4px;
+    `;
+    document.getElementById('bml').style.color = bestBlend.text;
+    document.getElementById('bml').textContent = bestBlend.label;
+    document.getElementById('beq').style.color = bestBlend.text;
+    document.getElementById('beq').textContent = bestBlend.eq;
+    document.getElementById('status').textContent = `⬡ ${bestBlend.eq}`;
+    document.getElementById('status').style.color = bestBlend.text.replace(')', ', 0.9)').replace('rgb', 'rgba') || '#1a6aff';
+  } else {
+    bo.style.opacity = '0';
+    document.getElementById('status').textContent = 'Drag sheets to intersect — feel the depth';
+    document.getElementById('status').style.color = '';
+  }
+}
+
+// ═══════════════════════════════
+//  ANIMATION LOOP
+// ═══════════════════════════════
+
+function loop(now) {
+  sheets.forEach((s, idx) => {
+    if (dragging?.type === 'sheet' && dragging.idx === idx) return;
+
+    if (s.isSwinging) {
+      const elapsed = (now - s.swingStart) / 1000;
+      if (elapsed > 0) {
+        const initRot = (P.swing * (0.8 + s.zLayer * 0.3)) * (idx % 2 === 0 ? 1 : -1);
+        const decayed = initRot * Math.exp(-elapsed * 4) * Math.cos(elapsed * 7.5);
+        s.rot = decayed;
+        if (Math.abs(decayed) < 0.08 && elapsed > 0.9) {
+          s.rot = 0; s.isSwinging = false;
+        }
+        applyTransform(s);
+      }
+    } else {
+      // Subtle parallax for background sheets
+      if (s.zLayer > 0 && !s.isSwinging) {
+        const px = s.def.startFrac.x * W - s.w/2 + parallaxX * s.zLayer * 0.6;
+        const py = s.def.startFrac.y * H + parallaxY * s.zLayer * 0.4;
+        s.el.style.transform = `translate(${px}px, ${py}px) rotate(${s.rot}deg) scale(${1 - s.zLayer * 0.03})`;
+        const wl = document.getElementById(`wl-${s.def.id}`);
+        if (wl) {
+          const wireLen = Math.max(py - 32, 10);
+          wl.style.height = wireLen + 'px';
+          const cx = px + s.w/2;
+          s.wire.style.left = cx + 'px';
+        }
+      }
+    }
+  });
+
+  requestAnimationFrame(loop);
+}
+
+// ═══════════════════════════════
+//  MODE SWITCHING
+// ═══════════════════════════════
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`btn-${m}`).classList.add('active');
+
+  if (m === 'volumes' && volumes.length === 0) {
+    // Add 2 solid volumes
+    DEFS.slice(0,2).forEach(def => buildVolume(def));
+  }
+
+  if (m === 'light') {
+    lightMode = true;
+    sheets.forEach(s => updateFloorCast(s));
+    document.getElementById('status').textContent = 'Light mode — color casts on floor';
+  } else {
+    lightMode = false;
+    sheets.forEach(s => {
+      const cast = document.getElementById(`cast-${s.def.id}`);
+      if (cast) cast.style.opacity = '0';
+    });
+  }
+}
+
+// ═══════════════════════════════
+//  KEYBOARD
+// ═══════════════════════════════
+
+document.addEventListener('keydown', e => {
+  if (e.code === 'KeyR') resetPositions();
+  if (e.code === 'Space') { e.preventDefault(); cascadeStack(); }
+  if (e.code === 'KeyL') setMode(lightMode ? 'sheets' : 'light');
+});
+
+function resetPositions() {
+  sheets.forEach((s, i) => {
+    s.x = s.def.startFrac.x * W - s.w/2;
+    s.y = s.def.startFrac.y * H;
+    s.rot = 0; s.isSwinging = true;
+    s.swingStart = performance.now() + i * 120;
+    applyTransform(s);
+  });
+  document.getElementById('blend-overlay').style.opacity = '0';
+  snapFlash();
+}
+
+function cascadeStack() {
+  const cx = W * 0.5;
+  sheets.forEach((s, i) => {
+    s.x = cx - s.w/2 + i * 28;
+    s.y = H * 0.06 + i * 16;
+    s.rot = (i - 1.5) * 2.5;
+    s.isSwinging = true; s.swingStart = performance.now() + i * 80;
+    applyTransform(s);
+  });
+  snapFlash();
+  setTimeout(checkBlends, 400);
+}
+
+function snapFlash() {
+  const f = document.getElementById('flash');
+  f.style.animation = 'none'; void f.offsetWidth;
+  f.style.animation = 'flash-pop 0.45s ease forwards';
+}
+
+// ═══════════════════════════════
+//  TUNER BINDINGS
+// ═══════════════════════════════
+
+function bindTuner() {
+  const B = (id, key, vid, fmt, cb) => {
+    const sl = document.getElementById(id);
+    sl.addEventListener('input', () => {
+      P[key] = parseFloat(sl.value);
+      document.getElementById(vid).textContent = fmt(P[key]);
+      cb && cb();
+    });
+  };
+  B('slSwing',   'swing',   'vSwing',   v => `${v.toFixed(1)}°`);
+  B('slTension', 'tension', 'vTension', v => v.toFixed(2));
+  B('slBlur',    'blurMax', 'vBlur',    v => `${v}px`, () => sheets.forEach(applyTransform));
+  B('slSat',     'sat',     'vSat',     v => v.toFixed(2), () => {
+    sheets.forEach(s => {
+      const mat = s.el.querySelector('.sheet-material');
+      if (mat) mat.style.background = s.def.color.replace('SAT', P.sat);
+    });
+  });
+  B('slScale',   'scale',   'vScale',   v => v.toFixed(2), () => {
+    // Rebuild is expensive; just rescale visually
+    sheets.forEach(s => {
+      s.el.style.transformOrigin = 'top center';
+    });
+  });
+}
+
+// ═══════════════════════════════
+//  ENTRY ANIMATION
+// ═══════════════════════════════
+
+function entryDrop() {
+  sheets.forEach((s, i) => {
+    // Start above ceiling
+    s.y = -s.h - 50;
+    s.rot = P.swing * (i % 2 === 0 ? 1 : -1);
+    applyTransform(s);
+
+    setTimeout(() => {
+      const targetY = s.def.startFrac.y * H;
+      s.el.style.transition = `transform ${0.65 + i * 0.07}s cubic-bezier(0.34, ${P.tension}, 0.64, 1)`;
+      s.x = s.def.startFrac.x * W - s.w/2;
+      s.y = targetY;
+      applyTransform(s);
+      setTimeout(() => {
+        s.el.style.transition = '';
+        s.isSwinging = true;
+        s.swingStart = performance.now();
+      }, 750);
+    }, 300 + i * 180);
+  });
+}
+
+// ═══════════════════════════════
+//  INIT
+// ═══════════════════════════════
+
+DEFS.forEach(def => buildSheet(def));
+bindTuner();
+requestAnimationFrame(loop);
+setTimeout(entryDrop, 100);
+setTimeout(snapFlash, 400);
+
+window.addEventListener('resize', () => {
+  const nW = window.innerWidth, nH = window.innerHeight;
+  sheets.forEach(s => {
+    s.x = s.def.startFrac.x * nW - s.w/2;
+    s.y = s.def.startFrac.y * nH;
+    applyTransform(s);
+  });
+});
+</script>
+</body>
+</html>
