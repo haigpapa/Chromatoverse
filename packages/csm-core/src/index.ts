@@ -1,4 +1,4 @@
-// @codeverse/csm-core
+// @chromatoverse/csm-core
 // Chroma-Spatial Morphism — Layer Primitives
 // Phase I scaffold — implementation in progress
 

@@ -1,11 +1,11 @@
 {
-  "name": "@codeverse/csm-docs",
+  "name": "@chromatoverse/csm-docs",
   "version": "0.0.1",
   "description": "Storybook design system for CSM components",
   "scripts": {
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
-  "keywords": ["storybook", "csm", "design-system"],
+  "keywords": ["storybook", "csm", "design-system", "chromatoverse"],
   "license": "MIT"
 }

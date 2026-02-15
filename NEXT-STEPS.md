@@ -1,4 +1,4 @@
-# Codeverse — Next Steps
+# Chromatoverse — Next Steps
 
 ## ✅ Completed
 
@@ -8,68 +8,72 @@ The repository has been scaffolded with:
 - Color grammar and physics constants in `csm-core`
 - GitHub Pages workflow for demo deployment
 - Research notes skeleton
-- Initial commit with exact message
+- Full Chromatoverse branding
 
 ## 🔨 To Do
 
-### 1. Create GitHub Repository
+### 1. Delete Old GitHub Repository (if it exists)
 
-Since `gh` CLI is not available, create the repo manually:
+Go to: https://github.com/haigpapa/codeverse/settings
+- Scroll to "Danger Zone"
+- Click "Delete this repository"
+- Type `haigpapa/codeverse` to confirm
 
-```bash
-# Go to: https://github.com/new
-# Repository name: codeverse
-# Description: A spatial computing interface for software architecture. Built on Chroma-Spatial Morphism.
-# Public repository
-# Do NOT initialize with README (we already have one)
-```
+### 2. Create New GitHub Repository
 
-### 2. Add Remote and Push
+Go to: https://github.com/new
+- Repository name: **chromatoverse**
+- Description: *Spatial computing for software architecture. Built on Chroma-Spatial Morphism.*
+- Public repository
+- Do NOT initialize with README (we already have one)
+
+### 3. Connect and Push
 
 ```bash
 cd /sessions/peaceful-tender-newton/mnt/projects/codeverse
-git remote add origin https://github.com/haigbalian/codeverse.git
+
+# Remove old remote (if exists)
+git remote remove origin 2>/dev/null || true
+
+# Add new remote
+git remote add origin https://github.com/haigpapa/chromatoverse.git
+
+# Create main branch
 git branch -M main
+
+# Push
 git push -u origin main
 ```
 
-### 3. Enable GitHub Pages
+### 4. Enable GitHub Pages
 
 Go to repository Settings → Pages:
 - Source: GitHub Actions
 - The workflow is already configured in `.github/workflows/deploy-demo.yml`
 
-### 4. Replace Demo Placeholder
+### 5. Replace Demo Placeholder
 
 Replace `demo/index.html` with your actual CSM Playground v2 HTML file.
 
-### 5. Optional: Install Dependencies (when ready)
+### 6. Optional: Rename Local Directory
 
 ```bash
-# Install pnpm globally if needed
-npm install -g pnpm
-
-# Install workspace dependencies
-pnpm install
-
-# Add dependencies to packages as needed
-cd packages/csm-core
-pnpm add -D tsup typescript
+cd /sessions/peaceful-tender-newton/mnt/projects
+mv codeverse chromatoverse
 ```
 
 ## 📁 Repository Structure
 
 ```
-codeverse/
+chromatoverse/
   ├── manifesto/               ← CSM paradigm documentation
   ├── packages/
-  │   ├── csm-core/           ← Core primitives (COLOR_GRAMMAR, DEPTH_LAYERS)
-  │   ├── codeverse-app/      ← Main spatial explorer app
-  │   └── csm-docs/           ← Storybook design system
-  ├── demo/                   ← GitHub Pages demo (replace index.html)
+  │   ├── csm-core/           ← @chromatoverse/csm-core
+  │   ├── chromatoverse-app/  ← @chromatoverse/app
+  │   └── csm-docs/           ← @chromatoverse/csm-docs
+  ├── demo/                   ← GitHub Pages demo
   ├── research/               ← UX and AR research notes
   └── .github/workflows/      ← Auto-deploy on demo/ changes
-
 ```
 
 ## 🎨 Color Grammar (Citable)
@@ -77,12 +81,12 @@ codeverse/
 The color grammar is now documented in `manifesto/color-grammar.md`.
 Anyone can reference it using:
 
-> Built with the [Codeverse Color Grammar](https://github.com/haigbalian/codeverse/blob/main/manifesto/color-grammar.md)
+> Built with the [Chromatoverse Color Grammar](https://github.com/haigpapa/chromatoverse/blob/main/manifesto/color-grammar.md)
 
 ## 🚀 Live Demo
 
 Once pushed and Pages is enabled:
-→ https://haigbalian.github.io/codeverse
+→ https://haigpapa.github.io/chromatoverse
 
 ---
 

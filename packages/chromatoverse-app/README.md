@@ -1,4 +1,4 @@
-# @codeverse/app
+# @chromatoverse/app
 
 The spatial code explorer application.
 
@@ -14,4 +14,4 @@ A Three.js-powered spatial interface where:
 - Color overlaps reveal architectural patterns
 - Gestures replace clicks
 
-Built on `@codeverse/csm-core`.
+Built on `@chromatoverse/csm-core`.

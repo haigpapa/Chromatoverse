@@ -19,7 +19,7 @@ The interface obeys a stylized physics engine. Sheets snap into focus with
 satisfying tension. Edges catch and refract light. Digital objects have
 premium, tangible presence.
 
-### Codeverse Application
+### Chromatoverse Application
 
 | Z-Layer | Meaning | Properties |
 |---|---|---|

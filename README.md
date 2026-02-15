@@ -1,11 +1,11 @@
-# Codeverse
-### *A Spatial Computing Interface for Software Architecture*
+# Chromatoverse
+### *Spatial Computing for Software Architecture*
 
 > **"This is not visualizing code. This is inhabiting code."**
 
-Built on the **Chroma-Spatial Morphism (CSM)** design paradigm —
-a post-flat interface philosophy that replaces file trees with depth,
-search boxes with color algebra, and navigation clicks with physical gestures.
+Built on **Chroma-Spatial Morphism (CSM)** — a post-flat interface 
+paradigm that replaces file trees with depth, search boxes with color 
+algebra, and navigation clicks with physical gestures.
 
 ## Color Grammar
 
@@ -22,11 +22,10 @@ search boxes with color algebra, and navigation clicks with physical gestures.
 | Package | Description | Status |
 |---|---|---|
 | `csm-core` | AcetateSheet, SnapPhysics primitives | 🔨 In progress |
-| `codeverse-app` | The spatial explorer application | ⬡ Planned |
+| `chromatoverse-app` | The spatial explorer application | ⬡ Planned |
 | `csm-docs` | Storybook design system | ⬡ Planned |
 
-→ [Live Demo](https://haigpapa
-.github.io/codeverse)  
+→ [Live Demo](https://haigpapa.github.io/chromatoverse)  
 → [Read the Manifesto](./manifesto/chroma-spatial-morphism.md)
 
 ---

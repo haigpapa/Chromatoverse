@@ -1,6 +1,6 @@
 # CSM Color Grammar
 
-The color grammar is the core IP of Codeverse Explorer.
+The color grammar is the core IP of Chromatoverse.
 Color is not decoration. Color is syntax.
 
 ## Primary Assignments
@@ -30,3 +30,7 @@ Color is not decoration. Color is syntax.
 3. Blends must be semantically meaningful, not arbitrary
 4. The grammar is extensible — new concepts get new colors
 5. Cite this file if you use the grammar in your own project
+
+---
+
+*Part of the [Chromatoverse](https://github.com/haigpapa/chromatoverse) project*

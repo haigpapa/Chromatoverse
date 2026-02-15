@@ -1,0 +1,12 @@
+{
+  "name": "@chromatoverse/app",
+  "version": "0.0.1",
+  "description": "The Chromatoverse spatial code explorer application",
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "keywords": ["chromatoverse", "spatial-computing", "csm"],
+  "license": "MIT"
+}

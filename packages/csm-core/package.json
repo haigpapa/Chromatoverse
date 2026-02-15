@@ -1,5 +1,5 @@
 {
-  "name": "@codeverse/csm-core",
+  "name": "@chromatoverse/csm-core",
   "version": "0.0.1",
   "description": "Acetate layer primitives and physics engine for Chroma-Spatial Morphism",
   "main": "dist/index.js",
@@ -9,6 +9,6 @@
     "build": "tsup src/index.ts --format cjs,esm --dts",
     "dev": "tsup src/index.ts --watch"
   },
-  "keywords": ["csm", "chroma-spatial-morphism", "spatial-ui", "acetate"],
+  "keywords": ["csm", "chroma-spatial-morphism", "spatial-ui", "acetate", "chromatoverse"],
   "license": "MIT"
 }

@@ -1,4 +1,4 @@
-# @codeverse/csm-core
+# @chromatoverse/csm-core
 
 Core primitives for **Chroma-Spatial Morphism (CSM)** interfaces.
 
@@ -12,7 +12,7 @@ Core primitives for **Chroma-Spatial Morphism (CSM)** interfaces.
 ## Usage
 
 ```typescript
-import { COLOR_GRAMMAR, DEPTH_LAYERS } from '@codeverse/csm-core';
+import { COLOR_GRAMMAR, DEPTH_LAYERS } from '@chromatoverse/csm-core';
 
 const sheet = {
   tint: COLOR_GRAMMAR.UI,
