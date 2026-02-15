@@ -1,27 +1,10 @@
 {
-  "name": "codeverse-explorer",
-  "version": "1.1.0",
-  "description": "AI-powered 3D code visualization platform",
+  "name": "codeverse",
+  "private": true,
   "scripts": {
-    "analyze": "node analyze.js .",
-    "analyze:copy": "npm run analyze && cp codeverse-data.json client/public/",
-    "server": "cd server && npm start",
-    "server:install": "cd server && npm install",
-    "client": "cd client && npm run dev",
-    "client:build": "cd client && npm run build",
-    "client:install": "cd client && npm install",
-    "install:all": "npm run server:install && npm run client:install",
-    "dev": "echo 'Start server in one terminal: npm run server' && echo 'Start client in another: npm run client'",
-    "start": "npm run server"
+    "dev": "pnpm -r dev",
+    "build": "pnpm -r build",
+    "demo": "npx serve demo"
   },
-  "keywords": [
-    "code-visualization",
-    "3d",
-    "developer-tools",
-    "ai",
-    "code-analysis",
-    "github"
-  ],
-  "author": "Haig (Walaw Studio)",
-  "license": "MIT"
+  "engines": { "node": ">=18", "pnpm": ">=8" }
 }
